@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Text, View, StyleSheet } from "react-native";
 import SearchBar from "../Components/SearchBar";
+import yelp from "../api/yelp";
 
 export default function SearchScreen() {
   const [term, setTerm] = useState();
+  const [businesses, setBusinesses] = useState([]);
 
   const handleSetTerm = (e) => {
     console.log(e);
@@ -11,7 +13,20 @@ export default function SearchScreen() {
   };
 
   const handleSearch = () => {
-    console.log("search: " + term);
+    yelp
+      .get("/search", {
+        params: {
+          limit: 20,
+          term: term,
+          location: "Los Angeles, CA",
+        },
+      })
+      .then((data) => {
+        setBusinesses(data.data.businesses);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   return (
@@ -21,6 +36,7 @@ export default function SearchScreen() {
         handleSetTerm={handleSetTerm}
         handleSearch={handleSearch}
       />
+      <Text>There are {businesses.length} results</Text>
     </View>
   );
 }
